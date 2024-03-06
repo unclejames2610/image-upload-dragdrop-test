@@ -3,12 +3,15 @@ import React, { useEffect, useRef, useState } from "react";
 
 const ImageUploader = () => {
   const [image, setImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>("");
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [onDrag, setOnDrag] = useState(false);
 
   const fileInput = useRef<HTMLInputElement | null>(null);
 
   const handleFile = (file: File) => {
     setImage(file);
+    console.log("file:", file);
+    // console.log("image:", image);
     setPreviewUrl(URL.createObjectURL(file));
   };
 
@@ -23,11 +26,13 @@ const ImageUploader = () => {
 
   const handleOnDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    setOnDrag(true);
   };
 
   const handleOnDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.stopPropagation();
+    setOnDrag(false);
 
     // Check if files were dropped
     if (event.dataTransfer.items) {
@@ -36,6 +41,7 @@ const ImageUploader = () => {
         // If dropped item is a file, get it as a File object
         if (event.dataTransfer.items[i].kind === "file") {
           let file = event.dataTransfer.items[i].getAsFile();
+          console.log("filedrag:", file);
           if (file) {
             handleFile(file);
             break; // Only handle the first file if multiple files were dropped
@@ -57,7 +63,9 @@ const ImageUploader = () => {
       <div
         onDragOver={handleOnDragOver}
         onDrop={handleOnDrop}
-        className="flex flex-col h-48 w-full bg-red-400 cursor-pointer border rounded-md hover:bg-red-700"
+        className={`flex flex-col h-48 w-full bg-red-400 cursor-pointer border rounded-md ${
+          onDrag === true && "bg-red-700 scale-105"
+        }`}
         onClick={handleClick}
       >
         <p className="mx-auto">
